@@ -2,7 +2,7 @@ from ImportLibs import *
 
 class Neural_Network:
 
-    def __init__(self,InputFeatures,Output,Input_Predict,Output_Predict,Nepochs,tol,eta,batch,index_env,NNLossFnScale,json_file,model_file):
+    def __init__(self,InputFeatures,Output,Input_Predict,Output_Predict,Nepochs,tol,eta,batch,index_env,NNLossFnScale,json_file,model_file,polars):
         self.InputFeatures  = InputFeatures
         self.Output         = Output
         self.Input_Predict  = Input_Predict
@@ -15,14 +15,14 @@ class Neural_Network:
         self.NNLossFnScale  = NNLossFnScale
         self.jsonFileName = json_file
         self.WeightsFileName = model_file
-
+        self.polarsflag = polars
 
     def Keras_firsttry(self):
 
         ########## Hyper-Parameters #################
 
         # No. of nuerons
-        nn = 10
+        nn = 20
 
         # Regularization parameter
         eta = self.eta
@@ -37,6 +37,7 @@ class Neural_Network:
         batch = self.batch
 
         flag = self.index_env
+        flag2 = self.polarsflag
 
         NNLossFnScale = self.NNLossFnScale
 
@@ -59,7 +60,10 @@ class Neural_Network:
         Input_Predict       = self.Input_Predict
         Output_Predict      = self.Output_Predict
 
-        conv_file_name = "file_conv_Polars.txt"
+        if flag2 == 1:
+            conv_file_name = "file_conv_Polars.txt"
+        elif flag2 == 0:
+            conv_file_name = "file_conv_Pressure.txt"
         file_conv = open(conv_file_name,'w')
         file_conv.write('Epoch Train_Acc Test_Acc \n')
 
@@ -73,12 +77,17 @@ class Neural_Network:
         scalerOUT = MinMaxScaler()
         scalerOUT.fit(Output)
 
+        # Inputs Scaled outside in another routine
+        # scalerIN = MinMaxScaler()
+        # scalerIN.fit(InputFeatures)
 
         if(flag == 1):
             print("Applying Min-max scaling!")
             yTrain_scaled = scalerOUT.transform(yTrain)
             yTest_scaled = scalerOUT.transform(yTest)
             Output_scaled = scalerOUT.transform(Output)
+            # xTrain_scaled = scalerIN.transform(xTrain)
+            # xTest_scaled = scalerIN.transform(xTest)
         elif(flag == 0):
             print("Not applying Min-max scaling!")
             yTrain_scaled = yTrain
@@ -100,27 +109,57 @@ class Neural_Network:
         model.add((Dense(nn)))
         model.add(LeakyReLU(alpha=0.3))
 
-        model.add((Dense(nn)))
-        model.add(LeakyReLU(alpha=0.3))        
+        # model.add((Dense(nn)))
+        # model.add(LeakyReLU(alpha=0.3))        
 
-        model.add((Dense(nn)))
-        model.add(LeakyReLU(alpha=0.3))  
+        # model.add((Dense(nn)))
+        # model.add(LeakyReLU(alpha=0.3))
 
-        model.add((Dense(nn)))
-        model.add(LeakyReLU(alpha=0.3))  
+        # model.add((Dense(nn)))
+        # model.add(LeakyReLU(alpha=0.3))
 
-        model.add((Dense(nn)))
-        model.add(LeakyReLU(alpha=0.3))  
+        # model.add((Dense(nn)))
+        # model.add(LeakyReLU(alpha=0.3))
+
+        # model.add((Dense(nn)))
+        # model.add(LeakyReLU(alpha=0.3))        
+
+        # model.add((Dense(nn)))
+        # model.add(LeakyReLU(alpha=0.3))  
+
+        # model.add((Dense(nn)))
+        # model.add(LeakyReLU(alpha=0.3)) 
+
+        # model.add((Dense(nn)))
+        # model.add(LeakyReLU(alpha=0.3))  
+
+        # model.add((Dense(nn)))
+        # model.add(LeakyReLU(alpha=0.3))  
+
+        # model.add((Dense(nn)))
+        # model.add(LeakyReLU(alpha=0.3))  
+
+        # model.add((Dense(nn)))
+        # model.add(LeakyReLU(alpha=0.3))  
+
+        # model.add((Dense(nn)))
+        # model.add(LeakyReLU(alpha=0.3))  
+
+        # model.add((Dense(nn)))
+        # model.add(LeakyReLU(alpha=0.3))  
+
+        # model.add((Dense(nn)))
+        # model.add(LeakyReLU(alpha=0.3))  
 
 
-        model.add((Dense(nn)))
-        model.add(LeakyReLU(alpha=0.3))  
+        # model.add((Dense(nn)))
+        # model.add(LeakyReLU(alpha=0.3))  
 
-        model.add((Dense(nn)))
-        model.add(LeakyReLU(alpha=0.3))  
+        # model.add((Dense(nn)))
+        # model.add(LeakyReLU(alpha=0.3))  
 
-        model.add((Dense(nn)))
-        model.add(LeakyReLU(alpha=0.3))  
+        # model.add((Dense(nn)))
+        # model.add(LeakyReLU(alpha=0.3))  
 
         model.add((Dense(outputDim)))
 
@@ -226,6 +265,8 @@ class Neural_Network:
 
         ######Prediction based on specified input features ########
         print(Input_Predict.shape)
+        # Input_Predict_scaled = scalerIN.transform(xTrain)
+        # Input_Predict_scaled = scalerIN.transform(Input_Predict);
         predictions = model.predict(Input_Predict)
 
         if(flag == 1):
@@ -237,6 +278,8 @@ class Neural_Network:
 
         print('Output')
         print(Output_Predict,np.amin(Output_Predict))
+
+        # print(np.corrcoef(np.hstack((predictions[:],Output_Predict[:]))))
 
 
     ################################################################
@@ -328,7 +371,11 @@ class Neural_Network:
         scalerOUT = MinMaxScaler()
         scalerOUT.fit(Output)
 
+        # scalerIN = MinMaxScaler()
+        # scalerIN.fit(Input_scaling)
+
         print(Input_Predict.shape)
+        # Input_Predict_scaled = scalerIN.transform(Input_scaling)
         predictions = loaded_model.predict(Input_Predict)
 
         if(index_env == 1):

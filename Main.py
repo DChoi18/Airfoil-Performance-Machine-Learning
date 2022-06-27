@@ -14,14 +14,14 @@ from NeuralNets import *
 
 ########## File Name ##########
 pathname = 'C:/Users/derrick/Documents/MATLAB/NASA airfoil-learning-dataset/h5/'
-input_file_polars = 'TestSet_Polars.h5'
-input_file_pressure = 'TestSet_Pressure.h5'
+input_file_polars = 'NACA_Airfoils_Polars.h5'
+input_file_pressure = 'naca0008-il - NACA 0008_Pressure.h5'
 
-TestFile_polars = 'TestSet_Polars.h5'
-TestFile_pressure = 'TestSet_Pressure.h5'
+TestFile_polars = 'naca0008-il - NACA 0008_Polars2.h5'
+TestFile_pressure = 'naca0008-il - NACA 0008_Pressure.h5'
 
-jsonFileName_polars = 'C:/Users/derrick/Documents/Python/NASA Airfoil/NNmodel_Test_Polars.json'
-WeightsFileName_polars = 'C:/Users/derrick/Documents/Python/NASA Airfoil/model_Test_Polars.h5' 
+jsonFileName_polars = 'C:/Users/derrick/Documents/Python/NASA Airfoil/NNmodel_Test_Polars8.json'
+WeightsFileName_polars = 'C:/Users/derrick/Documents/Python/NASA Airfoil/model_Test_Polars8.h5' 
 
 jsonFileName_pressure = 'C:/Users/derrick/Documents/Python/NASA Airfoil/NNmodel_Test_Pressure.json'
 WeightsFileName_pressure = 'C:/Users/derrick/Documents/Python/NASA Airfoil/model_Test_Pressure.h5'
@@ -41,10 +41,10 @@ eta = 0.000
 tol = 1.0e-6
  
 # Number of Epochs
-Nepochs = 301
+Nepochs = 501
 
 # Batch size
-batch = 2048
+batch = 1024
 
 # min-max scaling flag
 flag = 1
@@ -71,14 +71,21 @@ print('Reading Testing Data file!')
 [Input_test_polars,Output_test_polars] = ReadAirfoilData.ReadInputOutputFeatures_Polars(pathname+TestFile_polars)
 [Input_test_pressure,Output_test_pressure] = ReadAirfoilData.ReadInputOutputFeatures_Pressure(pathname+TestFile_pressure)
 
+print('Scaling Inputs')
+# InputFeat_polars_scaled = InputFeat_polars
 
+InputFeat_polars_scaled = ReadAirfoilData.DetermineScaledInputs(InputFeat_polars)
+Input_test_polars_scaled = ReadAirfoilData.DetermineScaledInputs(Input_test_polars)
+
+[Input_test_polars,b] = ReadAirfoilData.ReadInputOutputFeatures_Polars(pathname+TestFile_polars)
 
 ############### Neural Networks Training ################
 NNLossFnScale_polars = np.ones([npts_polars])
+print([Input_test_polars_scaled[0,0],Input_test_polars_scaled[0,1]])
 
 NNLossFnScale_pressure = np.ones([npts_pressure])
 if mode == 1:
-	Input_Predict_polars = InputFeat_polars
+	Input_Predict_polars = InputFeat_polars_scaled
 	Output_Predict_polars = OutputFeat_polars
 
 	Input_Predict_pressure = InputFeat_pressure
@@ -89,13 +96,14 @@ if mode == 1:
 	print(Output_Predict_pressure.shape,Output_Predict_pressure.shape)
 
 	print('Training Neural Network Model for Polars')
-	NNetwork1 = Neural_Network(InputFeat_polars,OutputFeat_polars,Input_Predict_polars,Output_Predict_polars,Nepochs,tol,eta,batch,flag,NNLossFnScale_polars,jsonFileName_polars,WeightsFileName_polars)
+	NNetwork1 = Neural_Network(InputFeat_polars_scaled,OutputFeat_polars,Input_Predict_polars,Output_Predict_polars,Nepochs,tol,eta,batch,flag,NNLossFnScale_polars,jsonFileName_polars,WeightsFileName_polars,1)
 	predictions1 = NNetwork1.Keras_firsttry()
 
+	exit()
 	print('Training Neural Network Model for Pressure')
-	NNetwork2 = Neural_Network(InputFeat_pressure,OutputFeat_pressure,Input_Predict_pressure,Output_Predict_pressure,Nepochs,tol,eta,batch,flag,NNLossFnScale_pressure,jsonFileName_pressure,WeightsFileName_pressure)
-	predictions1 = NNetwork2.Keras_firsttry()
-	print('Done!')
+	# NNetwork2 = Neural_Network(InputFeat_pressure,OutputFeat_pressure,Input_Predict_pressure,Output_Predict_pressure,Nepochs,tol,eta,batch,flag,NNLossFnScale_pressure,jsonFileName_pressure,WeightsFileName_pressure,0)
+	# predictions1 = NNetwork2.Keras_firsttry()
+	# print('Done!')
 
 ############### NN Evaluation and Post-Processing #################
 if mode == 2:
@@ -105,21 +113,24 @@ if mode == 2:
 		
 		print('Getting Inference Data!')
 		# cut data
-		[Input_Predict_polars,Output_Predict_polars] = ReadAirfoilData.GetEvaluationData(Input_test_polars,Output_test_polars,AOA[j],Re,Ncrit)
-		[Input_Predict_pressure,Output_Predict_pressure] = ReadAirfoilData.GetEvaluationData(Input_test_pressure,Output_test_pressure,AOA[j],Re,Ncrit)
+		# print([Input_test_polars[0,0],Input_test_polars[0,1]])
+
+		[Input_Predict_polars,Output_Predict_polars] = ReadAirfoilData.GetEvaluationData(Input_test_polars,Input_test_polars_scaled,Output_test_polars,AOA[j],Re,Ncrit)
+		[Input_Predict_pressure,Output_Predict_pressure] = ReadAirfoilData.GetEvaluationData(Input_test_pressure,Input_test_pressure,Output_test_pressure,AOA[j],Re,Ncrit)
 
 		# Neural_Network inputs: all inputs from test file, all output from training, desired input and output data 
 		Output_Scaling_polars = OutputFeat_polars
 		Output_Scaling_pressure = OutputFeat_pressure
+		Input_Scaling_polars = InputFeat_polars
 		print('Dimensions:')
 		print(Input_test_polars.shape,Output_Scaling_polars.shape,Input_Predict_polars.shape,Output_Predict_polars.shape)
-		print(Input_test_pressure.shape,Output_Scaling_pressure.shape,Input_Predict_pressure.shape,Output_Predict_pressure.shape)
+		# print(Input_test_pressure.shape,Output_Scaling_pressure.shape,Input_Predict_pressure.shape,Output_Predict_pressure.shape)
 		
-		NNetwork1 = Neural_Network(Input_test_polars,Output_Scaling_polars,Input_Predict_polars,Output_Predict_polars,Nepochs,tol,eta,batch,flag,NNLossFnScale_polars,jsonFileName_polars,WeightsFileName_polars)	
+		NNetwork1 = Neural_Network(Input_test_polars,Output_Scaling_polars,Input_Predict_polars,Output_Predict_polars,Nepochs,tol,eta,batch,flag,NNLossFnScale_polars,jsonFileName_polars,WeightsFileName_polars,1)	
 		predictions1 = NNetwork1.PredictNeuralNets(jsonFileName_polars,WeightsFileName_polars,Input_Predict_polars,Output_Predict_polars)
 
-		NNetwork2 = Neural_Network(Input_test_pressure,Output_Scaling_pressure,Input_Predict_pressure,Output_Predict_pressure,Nepochs,tol,eta,batch,flag,NNLossFnScale_pressure,jsonFileName_pressure,WeightsFileName_pressure)	
-		predictions2 = NNetwork2.PredictNeuralNets(jsonFileName_pressure,WeightsFileName_pressure,Input_Predict_pressure,Output_Predict_pressure)
+		# NNetwork2 = Neural_Network(Input_test_pressure,Output_Scaling_pressure,Input_Predict_pressure,Output_Predict_pressure,Nepochs,tol,eta,batch,flag,NNLossFnScale_pressure,jsonFileName_pressure,WeightsFileName_pressure,0)	
+		# predictions2 = NNetwork2.PredictNeuralNets(jsonFileName_pressure,WeightsFileName_pressure,Input_Predict_pressure,Output_Predict_pressure,InputFeat_pressure)
 		print('Writing Output Files')
 		output_file = 'C:/Users/derrick/Documents/MATLAB/NASA airfoil-learning-dataset/NNpredict/Test_NNpredict_AOA_'+str(AOA[j])+'_Re_'+str(Re)+'_Ncrit_'+str(Ncrit)+'.h5'
 		actual_data_file = 'C:/Users/derrick/Documents/MATLAB/NASA airfoil-learning-dataset/ActualData/Test_Actual_AOA_'+str(AOA[j])+'_Re_'+str(Re)+'_Ncrit_'+str(Ncrit)+'.h5'
@@ -128,13 +139,27 @@ if mode == 2:
 		Cdp_output = predictions1[:,1]
 		Cl_output = predictions1[:,2]
 		Cm_output = predictions1[:,3]
-		Cp_upper_output = predictions2[:,0]
-		Cp_lower_output = predictions2[:,1]
+		# Cp_upper_output = predictions2[:,0]
+		# Cp_lower_output = predictions2[:,1]
 
 		# Neural Network Prediction
-		ReadAirfoilData.WriteOutputFile(output_file,Cd_output,Cdp_output,Cl_output,Cm_output,Cp_upper_output,Cp_lower_output)
+		# ReadAirfoilData.WriteOutputFile(output_file,Cd_output,Cdp_output,Cl_output,Cm_output,Cp_upper_output,Cp_lower_output)
+		ReadAirfoilData.WriteOutputFile(output_file,Cd_output,Cdp_output,Cl_output,Cm_output,1,2)
+
+		# ReadAirfoilData.WriteOutputFile(output_file,Cd_output,1,2,3,Cp_upper_output,Cp_lower_output)
+		# ReadAirfoilData.WriteOutputFile(output_file,Cd_output,1,2,3,4,5)
 		# Actual Data
-		ReadAirfoilData.WriteOutputFile(actual_data_file,Output_Predict_polars[:,0],Output_Predict_polars[:,1],Output_Predict_polars[:,2],Output_Predict_polars[:,3],Output_Predict_pressure[:,0],Output_Predict_pressure[:,1])
+		# ReadAirfoilData.WriteOutputFile(actual_data_file,Output_Predict_polars[:,0],Output_Predict_polars[:,1],Output_Predict_polars[:,2],Output_Predict_polars[:,3],Output_Predict_pressure[:,0],Output_Predict_pressure[:,1])
+		ReadAirfoilData.WriteOutputFile(actual_data_file,Output_Predict_polars[:,0],Output_Predict_polars[:,1],Output_Predict_polars[:,2],Output_Predict_polars[:,3],1,2)
+		# ReadAirfoilData.WriteOutputFile(actual_data_file,Output_Predict_polars[:,0],1,2,3,Output_Predict_pressure[:,0],Output_Predict_pressure[:,1])
+		# ReadAirfoilData.WriteOutputFile(actual_data_file,Output_Predict_polars[:,0],1,2,3,4,5)
+
+		# print(Cd_output.shape, Output_Predict_polars.shape)
+		# print('skin drag coefficent relative error')
+		# print(np.fabs((Cd_output[:] - Output_Predict_polars[:,0])/OutputFeat_polars[:,0]))
+		# print('pressure correlation ')
+		# print(np.corrcoef([Output_Predict_pressure[:,0],Cp_lower_output[:]]))
 		print('Done!')
+		# exit()
 # Make a flow chart and example NN architecture for better organization of stuff
 # use same output features from training in the evaluation for neural network call
