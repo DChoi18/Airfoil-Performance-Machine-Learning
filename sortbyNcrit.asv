@@ -1,0 +1,37 @@
+function airfoilData = sortbyNcrit(data)
+% Purpose: split airfoil data by Ncrit
+%
+% Input: data = cell array with table arrays in each element
+%             - each element of cell array is split by Re
+%        Structure of table variable:
+%              - polars (Cd,Cp,Cl,etc) at each alpha, Re, and Ncrit
+% Ouput:
+%       airfoilData = data table variable further rearranged as a cell array
+%                     with data sets split by Ncrit
+% Author: Derrick Choi
+
+% preallocate and initialize
+airfoilData = cell(1,3);
+count = 1;
+
+% loop through Re
+for i = 1:length(data)
+
+    idx = find(diff(data{i,1}.Ncrit)~=0); % indices of were Re changes
+
+    start_stop = [0;idx;length(data{i,1}.Ncrit)]; % indices to grab data
+    
+    % split data by Ncrit at some Re
+    for j = 2:length(start_stop)
+        cutData = data{i,1}(start_stop(j-1)+1:start_stop(j),:); % data chunk with fixed Re and fixed Ncrit
+
+        % assign output
+        airfoilData{count,1} = cutData; 
+        airfoilData{count,2} = data
+        count = count+1;
+    end
+end
+
+airfoilData = airfoilData';
+
+end

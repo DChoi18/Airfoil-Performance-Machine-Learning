@@ -1,0 +1,22 @@
+% Purpose: Read json files containing airfoil data and parse through them
+%
+% Author: Derrick Choi
+clc; close all; clear
+%% Read a file and plot the data
+directory = [pwd '\json\'];
+
+allfiles_json = dir("json\*.json");
+allfiles_json(1).name;
+str = fileread([directory allfiles_json(1).name]);
+
+data = jsondecode(str);
+for i:length(data.polars)
+    aoa(i) = data.polars(i).alpha;
+    cd(i) = data.polars(i)
+end
+
+f1 = figure('Name','Cd vs alpha');
+plot(data.polars.alpha,data.polars.Cd)
+labelplot(f1,'$\alpha$','$c_d$','Drag Coefficient vs AOA',0)
+
+
