@@ -21,12 +21,12 @@ allfiles_json.name = [airfoil,'.json'];
 % Test code on sample dataset
 % str = fileread([directory allfiles_json(1).name]);
 outDirectory = [pwd '\h5\'];
-OutFile_Name = [outDirectory airfoil '_Polars2.h5'];
+OutFile_Name = [outDirectory airfoil '_Pressure2.h5'];
 
 % Modes of operation
 % polars - training model for polars
 % pressure - training model for pressure coefficient
-mode = 'polars';
+mode = 'pressure';
 
 switch mode
     case 'pressure'

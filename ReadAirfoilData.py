@@ -86,9 +86,10 @@ def ReadInputOutputFeatures_Pressure(filename):
 	Cp_upper = np.array(Cp_upper[:],ndmin = 2)
 	Cp_lower = np.array(Cp_lower[:],ndmin = 2)
 	
-	InpFeat = np.vstack((Re,Ncrit,thick,camb,max_thick,max_camb,pos_max_camb,pos_max_thick,alpha))
+	InpFeat = np.vstack((Re,Ncrit,thick,camb,xu,yu,yl,max_thick,max_camb,pos_max_camb,pos_max_thick,alpha))
 	# InpFeat = np.vstack((Re,Ncrit,xu,xl,yu,yl,thick,camb,alpha))
 	Output = np.vstack((Cp_upper,Cp_lower))
+	# Output = Cp_upper
 
 	InpFeat = np.transpose(InpFeat)
 	Output = np.transpose(Output)
@@ -143,10 +144,10 @@ def DetermineScaledInputs(InputFeatures):
 def WriteOutputFile(h5filename,Cd,Cdp,Cl,Cm,Cp_upper,Cp_lower):
 	f = h5py.File(h5filename,'w')
 
-	f.create_dataset('Cd',data = Cd)
-	f.create_dataset('Cdp',data = Cdp)
-	f.create_dataset('Cl',data = Cl)
-	f.create_dataset('Cm',data = Cm)
+	# f.create_dataset('Cd',data = Cd)
+	# f.create_dataset('Cdp',data = Cdp)
+	# f.create_dataset('Cl',data = Cl)
+	# f.create_dataset('Cm',data = Cm)
 	f.create_dataset('Cp_upper',data = Cp_upper)
 	f.create_dataset('Cp_lower',data = Cp_lower)
 

@@ -22,7 +22,7 @@ class Neural_Network:
         ########## Hyper-Parameters #################
 
         # No. of nuerons
-        nn = 20
+        nn = 100
 
         # Regularization parameter
         eta = self.eta
@@ -109,14 +109,14 @@ class Neural_Network:
         model.add((Dense(nn)))
         model.add(LeakyReLU(alpha=0.3))
 
-        # model.add((Dense(nn)))
-        # model.add(LeakyReLU(alpha=0.3))        
+        model.add((Dense(nn)))
+        model.add(LeakyReLU(alpha=0.3))        
 
-        # model.add((Dense(nn)))
-        # model.add(LeakyReLU(alpha=0.3))
+        model.add((Dense(nn)))
+        model.add(LeakyReLU(alpha=0.3))
 
-        # model.add((Dense(nn)))
-        # model.add(LeakyReLU(alpha=0.3))
+        model.add((Dense(nn)))
+        model.add(LeakyReLU(alpha=0.3))
 
         # model.add((Dense(nn)))
         # model.add(LeakyReLU(alpha=0.3))

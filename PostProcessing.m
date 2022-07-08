@@ -40,77 +40,66 @@ PostProcessDataFiles_Actual = GetPostProcessDataNames('./ActualData/Test_Actual_
 PostProcessDataFiles_NNPredict = GetPostProcessDataNames('./NNPredict/Test_NNpredict_AOA_',AOA,Re,Ncrit);
 for i = 1:length(AOA)
 
-    NNpredict.Cd = h5read(['NNpredict/',PostProcessDataFiles_NNPredict(i).name],'/Cd');
-    NNpredict.Cdp = h5read(['NNpredict/',PostProcessDataFiles_NNPredict(i).name],'/Cdp');
-    NNpredict.Cl = h5read(['NNpredict/',PostProcessDataFiles_NNPredict(i).name],'/Cl');
-    NNpredict.Cm = h5read(['NNpredict/',PostProcessDataFiles_NNPredict(i).name],'/Cm');
-%     NNpredict.Cp_lower = h5read(['NNpredict/',PostProcessDataFiles_NNPredict(i).name],'/Cp_upper');
-%     NNpredict.Cp_upper = h5read(['NNpredict/',PostProcessDataFiles_NNPredict(i).name],'/Cp_lower');
+%     NNpredict.Cd = h5read(['NNpredict/',PostProcessDataFiles_NNPredict(i).name],'/Cd');
+%     NNpredict.Cdp = h5read(['NNpredict/',PostProcessDataFiles_NNPredict(i).name],'/Cdp');
+%     NNpredict.Cl = h5read(['NNpredict/',PostProcessDataFiles_NNPredict(i).name],'/Cl');
+%     NNpredict.Cm = h5read(['NNpredict/',PostProcessDataFiles_NNPredict(i).name],'/Cm');
+    NNpredict.Cp_lower = h5read(['NNpredict/',PostProcessDataFiles_NNPredict(i).name],'/Cp_lower');
+    NNpredict.Cp_upper = h5read(['NNpredict/',PostProcessDataFiles_NNPredict(i).name],'/Cp_upper');
 
-    ActualData.Cd = h5read(['ActualData/',PostProcessDataFiles_Actual(i).name],'/Cd');
-    ActualData.Cdp = h5read(['ActualData/',PostProcessDataFiles_Actual(i).name],'/Cdp');
-    ActualData.Cl = h5read(['ActualData/',PostProcessDataFiles_Actual(i).name],'/Cl');
-    ActualData.Cm = h5read(['ActualData/',PostProcessDataFiles_Actual(i).name],'/Cm');
-%     ActualData.Cp_upper = h5read(['ActualData/',PostProcessDataFiles_Actual(i).name],'/Cp_lower');
-%     ActualData.Cp_lower = h5read(['ActualData/',PostProcessDataFiles_Actual(i).name],'/Cp_upper');
-%{
+%     ActualData.Cd = h5read(['ActualData/',PostProcessDataFiles_Actual(i).name],'/Cd');
+%     ActualData.Cdp = h5read(['ActualData/',PostProcessDataFiles_Actual(i).name],'/Cdp');
+%     ActualData.Cl = h5read(['ActualData/',PostProcessDataFiles_Actual(i).name],'/Cl');
+%     ActualData.Cm = h5read(['ActualData/',PostProcessDataFiles_Actual(i).name],'/Cm');
+    ActualData.Cp_upper = h5read(['ActualData/',PostProcessDataFiles_Actual(i).name],'/Cp_upper');
+    ActualData.Cp_lower = h5read(['ActualData/',PostProcessDataFiles_Actual(i).name],'/Cp_lower');
+
     %% Plotting Pressure Coefficient
     figure('Position',[100 100 1300 600]);
-    tiledlayout(1,2)
-    nexttile
 
     plot(x_coord/c,NNpredict.Cp_upper,'--','LineWidth',1.5)
     hold on
     plot(x_coord/c,NNpredict.Cp_lower,'--','LineWidth',1.5)
-    xlabel('$x/c$','Interpreter','latex','FontSize',12)
-    ylabel('$C_p$','Interpreter','latex','FontSize',12)
-    title('\textbf{Neural Network Prediction}','Interpreter','latex','FontSize',14)
-    set(gca,'TickLabelInterpreter','latex','FontSize',12,'YDir','reverse')
-    legend('Upper surface','Lower surface','Interpreter','latex','FontSize',12)
-    grid on
-
-    nexttile
     plot(x_coord/c,ActualData.Cp_upper,'.','MarkerSize',10)
-    hold on
     plot(x_coord/c,ActualData.Cp_lower,'.','MarkerSize',10)
+
     xlabel('$x/c$','Interpreter','latex','FontSize',12)
     ylabel('$C_p$','Interpreter','latex','FontSize',12)
-    title('\textbf{Actual Data}','Interpreter','latex','FontSize',14)
+    title(['\textbf{' data.name ' $\alpha = $' num2str(AOA(i)) ' $Re = $' num2str(Re) ' $Ncrit = $' num2str(Ncrit) '}'],'Interpreter','latex','FontSize',14)
     set(gca,'TickLabelInterpreter','latex','FontSize',12,'YDir','reverse')
-    legend('Upper surface','Lower surface','Interpreter','latex','FontSize',12)
+    legend('Upper surface NN','Lower surface NN','Upper surface Data','Lower Surface Data','Interpreter','latex','FontSize',12)
     grid on
 
-    sgtitle(['\textbf{Coefficient of Pressure Distribution at $\alpha$ = }',num2str(AOA(i))],'Interpreter','latex','FontSize',16)
 %}    
-    Cl_avg(i) = (NNpredict.Cl);
-    Cd_avg(i) = (NNpredict.Cd);
-    Cdp_avg(i) = (NNpredict.Cdp);
-    Cm_avg(i) = (NNpredict.Cm);
+%     Cl_avg(i) = (NNpredict.Cl);
+%     Cd_avg(i) = (NNpredict.Cd);
+%     Cdp_avg(i) = (NNpredict.Cdp);
+%     Cm_avg(i) = (NNpredict.Cm);
 end
 %% Plot the remaining Polars
-p1 = figure('Name','Cd','Position',[400 100 800 600]);
-plot(pdata{1,1}.alpha,pdata{1,1}.Cd,'.','MarkerSize',10)
-hold on
-plot(AOA,Cd_avg,'.--','LineWidth',1.2,'MarkerSize',10)
-labelplot(p1,'$\alpha$','$C_d$','$C_d$ vs $\alpha$',1,{'Actual Data','Neural Network Prediction'})
-
-p2 = figure('Name','Cdp','Position',[400 100 800 600]);
-plot(pdata{1,1}.alpha,pdata{1,1}.Cdp,'.','MarkerSize',10)
-hold on
-plot(AOA,Cdp_avg,'--','LineWidth',1.5)
-labelplot(p2,'$\alpha$','$C_{dp}$','$C_{dp}$ vs $\alpha$',1,{'Actual Data','Neural Network Prediction'})
-
-p3 = figure('Name','Cl','Position',[400 100 800 600]);
-plot(pdata{1,1}.alpha,pdata{1,1}.Cl,'.','MarkerSize',10)
-hold on
-plot(AOA,Cl_avg,'--','LineWidth',1.5)
-labelplot(p3,'$\alpha$','$C_l$','$C_l$ vs $\alpha$',1,{'Actual Data','Neural Network Prediction'})
-
-p4 = figure('Name','Cm','Position',[400 100 800 600]);
-plot(pdata{1,1}.alpha,pdata{1,1}.Cm,'.','MarkerSize',10)
-hold on
-plot(AOA,Cm_avg,'--','LineWidth',1.5)
-labelplot(p4,'$\alpha$','$C_m$','$C_m$ vs $\alpha$',1,{'Actual Data','Neural Network Prediction'})
+% p1 = figure('Name','Cd','Position',[400 100 800 600]);
+% plot(pdata{1,1}.alpha,pdata{1,1}.Cd,'.','MarkerSize',10)
+% hold on
+% plot(AOA,Cd_avg,'.--','LineWidth',1.2,'MarkerSize',10)
+% labelplot(p1,'$\alpha$','$C_d$','$C_d$ vs $\alpha$',1,{'Actual Data','Neural Network Prediction'})
+% 
+% p2 = figure('Name','Cdp','Position',[400 100 800 600]);
+% plot(pdata{1,1}.alpha,pdata{1,1}.Cdp,'.','MarkerSize',10)
+% hold on
+% plot(AOA,Cdp_avg,'--','LineWidth',1.5)
+% labelplot(p2,'$\alpha$','$C_{dp}$','$C_{dp}$ vs $\alpha$',1,{'Actual Data','Neural Network Prediction'})
+% 
+% p3 = figure('Name','Cl','Position',[400 100 800 600]);
+% plot(pdata{1,1}.alpha,pdata{1,1}.Cl,'.','MarkerSize',10)
+% hold on
+% plot(AOA,Cl_avg,'--','LineWidth',1.5)
+% labelplot(p3,'$\alpha$','$C_l$','$C_l$ vs $\alpha$',1,{'Actual Data','Neural Network Prediction'})
+% 
+% p4 = figure('Name','Cm','Position',[400 100 800 600]);
+% plot(pdata{1,1}.alpha,pdata{1,1}.Cm,'.','MarkerSize',10)
+% hold on
+% plot(AOA,Cm_avg,'--','LineWidth',1.5)
+% labelplot(p4,'$\alpha$','$C_m$','$C_m$ vs $\alpha$',1,{'Actual Data','Neural Network Prediction'})
 
 % p5 = figure('Name','Alignment','Position',[400 100 800 600]);
 % plot(Cd_avg,pdata{1,1}.Cd,'.','MarkerSize',10)
@@ -138,3 +127,4 @@ labelplot(p4,'$\alpha$','$C_m$','$C_m$ vs $\alpha$',1,{'Actual Data','Neural Net
 
 %% Plot NN training Results
 % plotNNTrainingResults
+% savefigs('NACA0008 Cp upper 25 nn')
