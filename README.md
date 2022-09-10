@@ -3,6 +3,6 @@ Code for developing a neural network model to predict airfoil performance charac
 
 Data Extraction and Input Generation done in MATLAB
 
-Neural Network Training and Evaluation done in Python (with TensorFlow)
+Neural Network Training and Evaluation done in Python (with TensorFlow) (Main.py)
 
 Post-Processing done in MATLAB
